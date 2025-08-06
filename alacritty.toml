@@ -1,0 +1,99 @@
+# Alacritty configuration to mimic Plan 9's 9term
+# Based on the classic Plan 9 terminal appearance
+
+[window]
+# Remove window decorations for clean look
+decorations = "none"
+# Start maximized like 9term
+startup_mode = "Maximized"
+# Minimal padding
+padding.x = 2
+padding.y = 2
+
+[font]
+# Plan 9 lucm font - using LucidaTypewriter which matches Plan 9's lucm
+normal.family = "sleekspace"
+bold.family = "sleekspace"
+italic.family = "sleekspace"
+bold_italic.family = "sleekspace"
+
+# Plan 9 font size matching the original lucm.9 (9 pixels)
+size = 12.0
+
+[colors]
+# Plan 9 9term color scheme: white background, black text
+[colors.primary]
+background = "#ffffff"  # White background
+foreground = "#000000"  # Black text
+
+# Cursor colors
+[colors.cursor]
+text = "#ffffff"        # White cursor text
+cursor = "#000000"      # Black cursor
+
+# Selection colors
+[colors.selection]
+text = "#000000"        # Black selected text
+background = "#b2b2b2"  # Light gray selection background
+
+# Normal colors (Plan 9 palette)
+[colors.normal]
+black = "#000000"       # Black
+red = "#cc0000"         # Dark red
+green = "#00aa00"       # Dark green  
+yellow = "#aa5500"      # Brown/orange
+blue = "#0000cc"        # Dark blue
+magenta = "#aa00aa"     # Dark magenta
+cyan = "#00aaaa"        # Dark cyan
+white = "#aaaaaa"       # Light gray
+
+# Bright colors
+[colors.bright]
+black = "#555555"       # Dark gray
+red = "#ff5555"         # Light red
+green = "#55ff55"       # Light green
+yellow = "#ffff55"      # Light yellow
+blue = "#5555ff"        # Light blue
+magenta = "#ff55ff"     # Light magenta
+cyan = "#55ffff"        # Light cyan
+white = "#ffffff"       # White
+
+[scrolling]
+# Plan 9 style scrolling
+history = 10000
+multiplier = 3
+
+[cursor]
+# Plan 9 style block cursor
+style.shape = "Block"
+style.blinking = "Never"
+
+[terminal]
+# Shell integration
+shell.program = "/bin/bash"
+
+[keyboard]
+# Plan 9 style keybindings
+bindings = [
+    # Scroll up/down
+    { key = "PageUp", mods = "Shift", action = "ScrollPageUp" },
+    { key = "PageDown", mods = "Shift", action = "ScrollPageDown" },
+    
+    # Copy/paste (Plan 9 uses middle mouse, but we'll use standard keys)
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+    
+    # Font size adjustment
+    { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+    { key = "Key0", mods = "Control", action = "ResetFontSize" },
+]
+
+[mouse]
+# Plan 9 style mouse behavior
+hide_when_typing = false
+
+# Selection
+[selection]
+# Plan 9 style selection
+save_to_clipboard = true

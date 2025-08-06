@@ -1,0 +1,72 @@
+# shrub9 configuration file
+# Simple key=value format, lines starting with # are comments
+
+# Appearance settings
+active_color = #f7a219
+inactive_color = #dbb981
+menu_bg_color = #6b4d1c
+menu_fg_color = #ffe5ba 
+font = sleekspace
+
+# Titlebar settings
+show_titlebars = 0
+titlebar_height = 20
+titlebar_bg_color = #0066ff
+titlebar_fg_color = #fffef7
+
+# Behavior settings  
+border_width = 4
+inset_width = 1
+terminal = alacritty
+cursor_style = modern
+
+# Rounding settings
+rounding = 0
+rounding_radius = 0
+
+# Menu text settings
+lower = 0
+
+# Wallpaper setting
+wallpaper_enabled = 1
+wallpaper = /home/shrub/Downloads/wallpaper.jpg
+
+# Terminal-launcher settings
+terminal_launcher_mode = 1
+terminal_classes = alacritty,xterm,urxvt,kitty,gnome-terminal
+
+# Workspace settings
+workspace_count = 6
+
+# Workspace keybindings (modifier+key format)
+workspace_key_1 = super+1
+workspace_key_2 = super+2  
+workspace_key_3 = super+3
+workspace_key_4 = super+4
+workspace_key_5 = super+5
+workspace_key_6 = super+6
+
+# Menu configuration
+menu_0_label = term
+menu_0_command = terminal
+menu_1_label = resize
+menu_1_command = reshape
+menu_2_label = move  
+menu_2_command = move
+menu_3_label = kill
+menu_3_command = delete
+menu_4_label = hide
+menu_4_command = hide
+menu_5_label = spaces
+menu_5_command = spaces
+menu_6_label = tile
+menu_6_command = tile
+
+# Plan 9 Integration
+plumb_enabled = 1
+plumb_send_path = /tmp/ns.shrub.:0/plumb
+plumb_rules_path = /tmp/ns.shrub.:0/plumb
+acme_integration = 1
+acme_no_borders = 1
+acme_no_titlebars = 1
+acme_smart_focus = 1
