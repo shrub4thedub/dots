@@ -1,0 +1,49 @@
+# Plumbing rules for acme
+
+# Image files - JPG
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.jpe?g)'
+arg isfile $1
+plumb to image
+plumb start nsxiv -b $file
+
+# Image files - PNG  
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.png)'
+arg isfile $1
+plumb to image
+plumb start nsxiv -b $file
+
+# Image files - GIF
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.gif)'
+arg isfile $1
+plumb to image  
+plumb start nsxiv -b $file
+
+# Web URLs - HTTP/HTTPS
+type is text
+data matches '(https?://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+)'
+plumb to web
+plumb start firefox $1
+
+# Video files
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.(mp4|avi|mkv|mov|webm|flv|wmv|m4v))'
+arg isfile $1
+plumb to video
+plumb start mpv $file
+
+# Audio files
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.(mp3|flac|ogg|wav|m4a|aac|opus))'
+arg isfile $1
+plumb to audio
+plumb start mpv $file
+
+# Local files (default behavior)
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+)'
+arg isfile $1
+plumb to edit
+plumb start acme -f /mnt/font/GoMono/10a/font $file

@@ -2,11 +2,11 @@
 # Simple key=value format, lines starting with # are comments
 
 # Appearance settings
-active_color = #f7a219
-inactive_color = #dbb981
+active_color = #c99043
+inactive_color = #ddbd8c
 menu_bg_color = #6b4d1c
 menu_fg_color = #ffe5ba 
-font = sleekspace
+font = Go Mono
 
 # Titlebar settings
 show_titlebars = 0
@@ -17,8 +17,8 @@ titlebar_fg_color = #fffef7
 # Behavior settings  
 border_width = 4
 inset_width = 1
-terminal = alacritty
-cursor_style = modern
+terminal = st
+cursor_style = classic
 
 # Rounding settings
 rounding = 0
@@ -29,11 +29,11 @@ lower = 0
 
 # Wallpaper setting
 wallpaper_enabled = 1
-wallpaper = /home/shrub/Downloads/wallpaper.jpg
+wallpaper = /home/shrub/Downloads/wallpaper4.jpg
 
 # Terminal-launcher settings
 terminal_launcher_mode = 1
-terminal_classes = alacritty,xterm,urxvt,kitty,gnome-terminal
+terminal_classes = alacritty,xterm,urxvt,kitty,gnome-terminal,9term,st, st-256color
 
 # Workspace settings
 workspace_count = 6
@@ -49,24 +49,24 @@ workspace_key_6 = super+6
 # Menu configuration
 menu_0_label = term
 menu_0_command = terminal
-menu_1_label = resize
-menu_1_command = reshape
-menu_2_label = move  
-menu_2_command = move
-menu_3_label = kill
-menu_3_command = delete
-menu_4_label = hide
-menu_4_command = hide
-menu_5_label = spaces
-menu_5_command = spaces
-menu_6_label = tile
-menu_6_command = tile
+menu_1_label = www
+menu_1_command = firefox
+menu_2_label = resize  
+menu_2_command = reshape
+menu_3_label = move
+menu_3_command = move
+menu_4_label = kill
+menu_4_command = delete
+menu_5_label = hide
+menu_5_command = hide
+menu_6_label = spaces
+menu_6_command = spaces
 
 # Plan 9 Integration
 plumb_enabled = 1
 plumb_send_path = /tmp/ns.shrub.:0/plumb
 plumb_rules_path = /tmp/ns.shrub.:0/plumb
-acme_integration = 1
-acme_no_borders = 1
-acme_no_titlebars = 1
-acme_smart_focus = 1
+acme_integration = 0
+acme_no_borders = 0
+acme_no_titlebars = 0
+acme_smart_focus = 0
