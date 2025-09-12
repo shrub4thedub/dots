@@ -1,42 +1,41 @@
-# Alacritty configuration to mimic Plan 9's 9term
-# Based on the classic Plan 9 terminal appearance
+
 
 [window]
-# Remove window decorations for clean look
+
 decorations = "none"
-# Start maximized like 9term
+
 startup_mode = "Maximized"
-# Minimal padding
+
 padding.x = 2
 padding.y = 2
 
 [font]
-# Plan 9 lucm font - using LucidaTypewriter which matches Plan 9's lucm
+
 normal.family = "sleekspace"
 bold.family = "sleekspace"
 italic.family = "sleekspace"
 bold_italic.family = "sleekspace"
 
-# Plan 9 font size matching the original lucm.9 (9 pixels)
+
 size = 12.0
 
 [colors]
-# Plan 9 9term color scheme: white background, black text
+
 [colors.primary]
 background = "#ffffff"  # White background
 foreground = "#000000"  # Black text
 
-# Cursor colors
+
 [colors.cursor]
 text = "#ffffff"        # White cursor text
 cursor = "#000000"      # Black cursor
 
-# Selection colors
+
 [colors.selection]
 text = "#000000"        # Black selected text
 background = "#b2b2b2"  # Light gray selection background
 
-# Normal colors (Plan 9 palette)
+
 [colors.normal]
 black = "#000000"       # Black
 red = "#cc0000"         # Dark red
@@ -47,7 +46,7 @@ magenta = "#aa00aa"     # Dark magenta
 cyan = "#00aaaa"        # Dark cyan
 white = "#aaaaaa"       # Light gray
 
-# Bright colors
+
 [colors.bright]
 black = "#555555"       # Dark gray
 red = "#ff5555"         # Light red
@@ -59,21 +58,21 @@ cyan = "#55ffff"        # Light cyan
 white = "#ffffff"       # White
 
 [scrolling]
-# Plan 9 style scrolling
+
 history = 10000
 multiplier = 3
 
 [cursor]
-# Plan 9 style block cursor
+
 style.shape = "Block"
 style.blinking = "Never"
 
 [terminal]
-# Shell integration
+
 shell.program = "/bin/bash"
 
 [keyboard]
-# Plan 9 style keybindings
+
 bindings = [
     # Scroll up/down
     { key = "PageUp", mods = "Shift", action = "ScrollPageUp" },
@@ -90,10 +89,10 @@ bindings = [
 ]
 
 [mouse]
-# Plan 9 style mouse behavior
+
 hide_when_typing = false
 
-# Selection
+
 [selection]
-# Plan 9 style selection
+
 save_to_clipboard = true
