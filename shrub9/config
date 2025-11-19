@@ -4,8 +4,8 @@
 # Appearance settings
 active_color = #c99043
 inactive_color = #ddbd8c
-menu_bg_color = #6b4d1c
-menu_fg_color = #ffe5ba 
+menu_bg_color = #c99043
+menu_fg_color = #ffffea 
 font = Go Mono
 
 # Titlebar settings
@@ -15,14 +15,12 @@ titlebar_bg_color = #0066ff
 titlebar_fg_color = #fffef7
 
 # Behavior settings  
-border_width = 4
-inset_width = 1
+border_width = 8
+window_frame_width = 8
+window_frame_color = #FFFFEA
+inset_width = 8
 terminal = st
 cursor_style = classic
-
-# Rounding settings
-rounding = 0
-rounding_radius = 0
 
 # Menu text settings
 lower = 0
@@ -49,8 +47,12 @@ workspace_key_6 = super+6
 # Menu configuration
 menu_0_label = term
 menu_0_command = terminal
-menu_1_label = www
-menu_1_command = firefox
+menu_1_label = utils
+menu_1_folder = 1
+menu_1_sub_0_label = www
+menu_1_sub_0_command = firefox
+menu_1_sub_1_label = acme
+menu_1_sub_1_command = acme -f /mnt/font/GoMono/10a/font 
 menu_2_label = resize  
 menu_2_command = reshape
 menu_3_label = move
@@ -59,14 +61,10 @@ menu_4_label = kill
 menu_4_command = delete
 menu_5_label = hide
 menu_5_command = hide
-menu_6_label = spaces
-menu_6_command = spaces
+menu_6_label = plumb
+menu_6_command = sp
+menu_7_label = spaces
+menu_7_command = spaces
 
 # Plan 9 Integration
 plumb_enabled = 1
-plumb_send_path = /tmp/ns.shrub.:0/plumb
-plumb_rules_path = /tmp/ns.shrub.:0/plumb
-acme_integration = 0
-acme_no_borders = 0
-acme_no_titlebars = 0
-acme_smart_focus = 0
