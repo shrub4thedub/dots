@@ -1,0 +1,84 @@
+#!/bin/sh
+# Email notification monitor for plan9 upas/Gmail IMAP
+
+# Track last known message count
+LAST_COUNT=0
+MAIL_DIR=""
+
+find_mail_dir() {
+    # Check if mail filesystem is accessible via 9p
+    if 9p ls mail/mbox >/dev/null 2>&1; then
+        echo "mail/mbox"
+        return 0
+    fi
+    echo ""
+}
+
+get_message_count() {
+    if [ -n "$MAIL_DIR" ]; then
+        # Count message files using 9p (numbered files)
+        9p ls "$MAIL_DIR" 2>/dev/null | grep -E '^[0-9]+$' | wc -l
+    else
+        echo "0"
+    fi
+}
+
+get_latest_subject() {
+    if [ -n "$MAIL_DIR" ]; then
+        # Get the highest numbered message file
+        latest=$(9p ls "$MAIL_DIR" 2>/dev/null | grep -E '^[0-9]+$' | sort -n | tail -1)
+        if [ -n "$latest" ]; then
+            # Extract subject line using 9p
+            9p read "$MAIL_DIR/$latest" 2>/dev/null | grep -i "^subject:" | sed 's/^[Ss]ubject: *//' | head -1
+        fi
+    fi
+}
+
+main() {
+    echo "mail monitor started press ctrl+c to stop"
+
+    # Find mail directory
+    MAIL_DIR=$(find_mail_dir)
+    if [ -z "$MAIL_DIR" ]; then
+        echo "no mail directory found - make sure upas is running"
+        exit 1
+    fi
+
+    echo "monitoring mail in: $MAIL_DIR"
+
+    # Initialize with current count
+    LAST_COUNT=$(get_message_count)
+    echo "initial message count: $LAST_COUNT"
+
+    while true; do
+        current_count=$(get_message_count)
+
+        # Check for new messages
+        if [ "$current_count" -gt "$LAST_COUNT" ]; then
+            new_msgs=$((current_count - LAST_COUNT))
+            subject=$(get_latest_subject)
+            latest=$(9p ls "$MAIL_DIR" 2>/dev/null | grep -E '^[0-9]+$' | sort -n | tail -1)
+
+            if [ -n "$subject" ] && [ -n "$latest" ]; then
+                # Create clickable notification that opens the email
+                herbe "new mail: $subject" && printf '%s' "/mail/fs/mbox/$latest" | plumb -i -d showmail &
+            else
+                if [ "$new_msgs" -eq 1 ]; then
+                    herbe "new mail message" &
+                else
+                    herbe "$new_msgs new mail messages" &
+                fi
+            fi
+
+            LAST_COUNT="$current_count"
+        fi
+
+        # Check every 30 seconds (don't want to hammer IMAP)
+        sleep 30
+    done
+}
+
+# Cleanup on exit
+trap 'echo "mail monitor stopped."; exit' INT TERM
+
+main "$@"

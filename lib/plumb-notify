@@ -1,0 +1,51 @@
+#!/bin/sh
+# Plumbing notification wrapper
+
+app="$1"
+if [ $# -gt 0 ]; then
+    shift
+fi
+
+# Function to run command and handle plumb failures
+run_with_error_check() {
+    local cmd="$1"
+    shift
+    local args="$@"
+
+    # Capture stderr to check for plumb failures
+    error_output=$("$cmd" "$@" 2>&1)
+    exit_code=$?
+
+    # Check if the error contains the specific plumb failure message
+    if echo "$error_output" | grep -q "plumb: can't send message: couldn't find destination for message"; then
+        herbe "plumb failed: couldn't find destination for message" &
+        return 1
+    fi
+
+    # If there was an error but not the plumb failure, still return the exit code
+    return $exit_code
+}
+
+case "$app" in
+    nsxiv)
+        herbe "plumbed image: $(basename "$1") → nsxiv" &
+        run_with_error_check nsxiv -b "$@"
+        ;;
+    firefox)
+        herbe "plumbed url: $1 → firefox" &
+        run_with_error_check firefox "$@"
+        ;;
+    mpv)
+        herbe "plumbed media: $(basename "$1") → mpv" &
+        run_with_error_check mpv "$@"
+        ;;
+    acme)
+        # Find the last argument (the filename)
+        eval "file=\${$#}"
+        herbe "Plumbed file: $(basename "$file") → acme" &
+        run_with_error_check acme "$@"
+        ;;
+    *)
+        run_with_error_check "$app" "$@"
+        ;;
+esac

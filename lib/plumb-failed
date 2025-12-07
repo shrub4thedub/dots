@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/local/bin/herbe "plumb failed: no rule matched"

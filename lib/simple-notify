@@ -1,0 +1,34 @@
+#!/bin/sh
+# Simple notification handler that sends to herbe and plumbs URLs
+
+plumb_notification() {
+    local message="$1"
+    local url=""
+
+    # Extract URLs from notification message
+    url=$(echo "$message" | grep -oE 'https?://[^ ]+' | head -1)
+
+    # Send notification to herbe and plumb URL if clicked
+    if [ -n "$url" ]; then
+        herbe "$message" && printf '%s' "$url" | plumb -i &
+    else
+        herbe "$message" &
+    fi
+}
+
+# Handle notify-send arguments
+message=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -u|--urgency) shift 2 ;;
+        -t|--expire-time) shift 2 ;;
+        -i|--icon) shift 2 ;;
+        -c|--category) shift 2 ;;
+        -h|--hint) shift 2 ;;
+        -*) shift ;;
+        *) message="$message $1"; shift ;;
+    esac
+done
+
+# Process the notification
+plumb_notification "$message"

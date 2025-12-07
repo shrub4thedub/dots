@@ -1,0 +1,85 @@
+#!/bin/sh
+# WiFi connection monitor with herbe notifications
+
+# Track connection state
+LAST_CONNECTED=false
+LAST_SSID=""
+
+get_wifi_status() {
+    # Check if wireless interface is up and connected
+    for iface in /sys/class/net/w*; do
+        if [ -d "$iface" ]; then
+            iface_name=$(basename "$iface")
+            # Check if interface is up and has an IP
+            if ip addr show "$iface_name" 2>/dev/null | grep -q "inet "; then
+                echo "connected"
+                return 0
+            fi
+        fi
+    done
+    echo "disconnected"
+}
+
+get_wifi_ssid() {
+    # Get current SSID using iwgetid or iw
+    if command -v iwgetid >/dev/null 2>&1; then
+        iwgetid -r 2>/dev/null || echo "unknown"
+    elif command -v iw >/dev/null 2>&1; then
+        # Find wireless interface and get SSID
+        for iface in /sys/class/net/w*; do
+            if [ -d "$iface" ]; then
+                iface_name=$(basename "$iface")
+                iw dev "$iface_name" link 2>/dev/null | grep "SSID:" | sed 's/.*SSID: //' || echo "unknown"
+                return 0
+            fi
+        done
+        echo "unknown"
+    else
+        echo "unknown"
+    fi
+}
+
+main() {
+    echo "wifi monitor started press ctrl+c to stop"
+
+    # Initialize with current state
+    current_status=$(get_wifi_status)
+    if [ "$current_status" = "connected" ]; then
+        LAST_CONNECTED=true
+        LAST_SSID=$(get_wifi_ssid)
+    else
+        LAST_CONNECTED=false
+        LAST_SSID=""
+    fi
+
+    while true; do
+        wifi_status=$(get_wifi_status)
+        current_ssid=""
+
+        if [ "$wifi_status" = "connected" ]; then
+            current_ssid=$(get_wifi_ssid)
+
+            # Check if just connected or changed network
+            if [ "$LAST_CONNECTED" = "false" ] || [ "$current_ssid" != "$LAST_SSID" ]; then
+                herbe "connected to wifi: $current_ssid" &
+                LAST_CONNECTED=true
+                LAST_SSID="$current_ssid"
+            fi
+        else
+            # Check if just disconnected
+            if [ "$LAST_CONNECTED" = "true" ]; then
+                herbe "disconnected from wifi: $LAST_SSID" &
+                LAST_CONNECTED=false
+                LAST_SSID=""
+            fi
+        fi
+
+        # Check every 2 seconds
+        sleep 2
+    done
+}
+
+# Cleanup on exit
+trap 'echo "wifi monitor stopped."; exit' INT TERM
+
+main "$@"

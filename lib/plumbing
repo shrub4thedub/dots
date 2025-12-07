@@ -1,0 +1,85 @@
+# Plumbing rules for acme
+
+include fileaddr
+
+# Mail ports for acme Mail
+plumb to seemail
+plumb to showmail
+
+# faces -> new mail window for message
+type	is	text
+data	matches	'[a-zA-Z¡-￿0-9_\-./]+'
+data	matches	'/mail/fs/[a-zA-Z¡-￿0-9/]+/[0-9]+'
+plumb	to	showmail
+plumb	start	window -r 4 120 750 600 upas/nedmail -s $0
+
+# Image files - JPG
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.jpe?g)'
+arg isfile $file
+plumb to image
+plumb start /home/shrub/lib/plumb-notify nsxiv $file
+
+# Image files - PNG
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.png)'
+arg isfile $file
+plumb to image
+plumb start /home/shrub/lib/plumb-notify nsxiv $file
+
+# Image files - PNG
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.pdf)'
+arg isfile $file
+plumb start /home/shrub/lib/plumb-notify zathura $file
+
+# Image files - GIF
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.gif)'
+arg isfile $file
+plumb to image
+plumb start /home/shrub/lib/plumb-notify nsxiv $file
+
+# Web URLs - HTTP/HTTPS
+type is text
+data matches '(https?://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+)'
+plumb to web
+plumb start /home/shrub/lib/plumb-notify firefox $1
+
+# Video files
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.(mp4|avi|mkv|mov|webm|flv|wmv|m4v))'
+arg isfile $file
+plumb to video
+plumb start /home/shrub/lib/plumb-notify mpv $file
+
+# Audio files
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+\.(mp3|flac|ogg|wav|m4a|aac|opus))'
+arg isfile $file
+plumb to audio
+plumb start /home/shrub/lib/plumb-notify mpv $file
+
+# man index entries are synthesized
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\(([1-8])\)'
+plumb start rc -c 'man '$2' '$1' >[2=1] | nobs | plumb -i -d edit -a ''action=showdata filename=/man/'$1'('$2')'''
+# Files without extensions
+type is text
+data matches '([.a-zA-Z¡-￿0-9_/\-@]*[a-zA-Z¡-￿0-9_/\-])('$addr')?'
+arg isfile	$1
+data set	$file
+attr add	addr=$3
+plumb to edit
+plumb client /home/shrub/lib/plumb-notify acme -f /mnt/font/GoMono/10a/font
+
+
+# Local files (default behavior)
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+)'
+arg isfile	$1
+data set	$file
+attr add	addr=$3
+plumb to edit
+plumb client /home/shrub/lib/plumb-notify acme -f /mnt/font/GoMono/10a/font
+

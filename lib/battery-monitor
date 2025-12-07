@@ -1,0 +1,110 @@
+#!/bin/sh
+# Battery level monitor with herbe notifications
+
+# Track which warnings we've already shown
+WARNED_50=false
+WARNED_20=false
+WARNED_10=false
+NOTIFIED_PLUGGED=false
+LAST_AC_STATUS="0"
+
+get_battery_level() {
+    # Try different battery paths
+    for bat in /sys/class/power_supply/BAT*; do
+        if [ -f "$bat/capacity" ]; then
+            cat "$bat/capacity"
+            return 0
+        fi
+    done
+
+    # Fallback: try acpi if available
+    if command -v acpi >/dev/null 2>&1; then
+        acpi -b | grep -oE '[0-9]+%' | head -1 | tr -d '%'
+        return 0
+    fi
+
+    echo "0"
+}
+
+get_battery_status() {
+    for bat in /sys/class/power_supply/BAT*; do
+        if [ -f "$bat/status" ]; then
+            cat "$bat/status"
+            return 0
+        fi
+    done
+    echo "Unknown"
+}
+
+get_ac_status() {
+    # Check for AC adapter
+    if [ -f "/sys/class/power_supply/AC/online" ]; then
+        cat "/sys/class/power_supply/AC/online"
+        return 0
+    fi
+    # Check for ADP adapters
+    for ac in /sys/class/power_supply/ADP*; do
+        if [ -f "$ac/online" ]; then
+            cat "$ac/online"
+            return 0
+        fi
+    done
+    echo "0"
+}
+
+main() {
+    echo "battery monitor started press ctrl+c to stop"
+
+    # Initialize with current AC status to avoid false notifications on startup
+    LAST_AC_STATUS=$(get_ac_status)
+
+    while true; do
+        battery_level=$(get_battery_level)
+        battery_status=$(get_battery_status)
+        ac_status=$(get_ac_status)
+
+        # Check if AC was just plugged in
+        if [ "$ac_status" = "1" ] && [ "$LAST_AC_STATUS" = "0" ]; then
+            herbe "plugged in; battery at ${battery_level}%" &
+            NOTIFIED_PLUGGED=true
+        fi
+
+        # Check if AC was just unplugged
+        if [ "$ac_status" = "0" ] && [ "$LAST_AC_STATUS" = "1" ]; then
+            herbe "unplugged; ${battery_level}% remaining" &
+            NOTIFIED_PLUGGED=false
+        fi
+
+        # Reset warnings if AC is connected
+        if [ "$ac_status" = "1" ]; then
+            WARNED_50=false
+            WARNED_20=false
+            WARNED_10=false
+        fi
+
+        # Check battery levels and send notifications (only when on battery)
+        if [ "$ac_status" = "0" ]; then
+            if [ "$battery_level" -le 10 ] && [ "$WARNED_10" = "false" ]; then
+                herbe "critical battery: ${battery_level}%" &
+                WARNED_10=true
+            elif [ "$battery_level" -le 20 ] && [ "$WARNED_20" = "false" ]; then
+                herbe "low battery: ${battery_level}%" &
+                WARNED_20=true
+            elif [ "$battery_level" -le 50 ] && [ "$WARNED_50" = "false" ]; then
+                herbe "battery: ${battery_level}%" &
+                WARNED_50=true
+            fi
+        fi
+
+        # Update last AC status for next iteration
+        LAST_AC_STATUS="$ac_status"
+
+        # Check every 1 seconds for faster response
+        sleep 1
+    done
+}
+
+# Cleanup on exit
+trap 'echo "Battery monitor stopped."; exit' INT TERM
+
+main "$@"

@@ -1,0 +1,87 @@
+#!/bin/sh
+# Notification interceptor that sends to herbe and optionally plumbs URLs
+
+plumb_notification() {
+    local message="$1"
+    local url=""
+
+    # Extract URLs from notification message
+    url=$(echo "$message" | grep -oE 'https?://[^ ]+' | head -1)
+
+    # Send notification to herbe
+    herbe "$message" &
+
+    # If URL found, plumb it after a short delay
+    if [ -n "$url" ]; then
+        (sleep 1; echo "$url" | plumb) &
+    fi
+}
+
+# Function to handle DBus notifications
+monitor_dbus() {
+    dbus-monitor --session "interface='org.freedesktop.Notifications',member='Notify'" 2>/dev/null | \
+    while IFS= read -r line; do
+        case "$line" in
+            *"string "*)
+                # Extract message from DBus string
+                msg=$(echo "$line" | sed 's/.*string "\(.*\)".*/\1/' | sed 's/\\n/ /g')
+                # Skip empty messages and DBus metadata
+                if [ -n "$msg" ] && [ "$msg" != "string" ] && ! echo "$msg" | grep -q "^method\|^signal"; then
+                    plumb_notification "$msg"
+                fi
+                ;;
+        esac
+    done
+}
+
+# Create notify-send wrapper if it doesn't exist
+setup_notify_send() {
+    if ! command -v notify-send >/dev/null 2>&1; then
+        cat > /tmp/notify-send << 'EOF'
+#!/bin/sh
+# notify-send wrapper for herbe
+message=""
+for arg in "$@"; do
+    case "$arg" in
+        -u|--urgency) shift ;;
+        -t|--expire-time) shift ;;
+        -i|--icon) shift ;;
+        -c|--category) shift ;;
+        -h|--hint) shift ;;
+        -*) ;;
+        *) message="$message $arg" ;;
+    esac
+done
+
+# Send to our notification handler
+echo "$message" >> /tmp/herbe-notifications
+EOF
+        chmod +x /tmp/notify-send
+        export PATH="/tmp:$PATH"
+    fi
+}
+
+# Main function
+main() {
+    # Create named pipe for notify-send wrapper
+    mkfifo /tmp/herbe-notifications 2>/dev/null || true
+
+    # Setup notify-send wrapper
+    setup_notify_send
+
+    # Monitor notify-send calls
+    (while IFS= read -r message; do
+        [ -n "$message" ] && plumb_notification "$message"
+    done < /tmp/herbe-notifications) &
+
+    # Monitor DBus notifications
+    monitor_dbus &
+
+    echo "Notification monitor started. Press Ctrl+C to stop."
+    wait
+}
+
+# Cleanup on exit
+trap 'rm -f /tmp/herbe-notifications /tmp/notify-send; exit' INT TERM
+
+main "$@"
